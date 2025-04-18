@@ -1,129 +1,169 @@
-{
- "cells": [
-  {
-   "cell_type": "code",
-   "execution_count": null,
-   "id": "18124324-502e-4f6e-ac81-0ddc2e793fff",
-   "metadata": {},
-   "outputs": [],
-   "source": [
-    "# Import necessary libraries\n",
-    "import numpy as np\n",
-    "import pandas as pd\n",
-    "import seaborn as sns\n",
-    "import matplotlib.pyplot as plt\n",
-    "from sklearn.datasets import load_iris\n",
-    "from sklearn.model_selection import train_test_split, cross_val_score\n",
-    "from sklearn.preprocessing import StandardScaler, LabelEncoder\n",
-    "from sklearn.metrics import classification_report, accuracy_score, roc_curve, auc\n",
-    "from sklearn.neighbors import KNeighborsClassifier\n",
-    "from sklearn.tree import DecisionTreeClassifier\n",
-    "from sklearn.ensemble import RandomForestClassifier\n",
-    "from sklearn.linear_model import LogisticRegression\n",
-    "\n",
-    "# Load the Iris dataset\n",
-    "iris = load_iris()\n",
-    "X = pd.DataFrame(iris.data, columns=iris.feature_names)\n",
-    "y = iris.target\n",
-    "\n",
-    "# Data overview\n",
-    "print(\"Data overview:\")\n",
-    "print(X.head())\n",
-    "\n",
-    "# Descriptive statistics\n",
-    "print(\"\\nDescriptive statistics:\")\n",
-    "print(X.describe())\n",
-    "\n",
-    "# Pairplot visualization\n",
-    "sns.pairplot(pd.concat([X, pd.DataFrame(y, columns=['target'])], axis=1), hue='target')\n",
-    "plt.show()\n",
-    "\n",
-    "# Check for missing values\n",
-    "print(\"\\nMissing values:\")\n",
-    "print(X.isnull().sum())\n",
-    "\n",
-    "# Scale features\n",
-    "scaler = StandardScaler()\n",
-    "X_scaled = scaler.fit_transform(X)\n",
-    "print(\"\\nFeatures scaled.\")\n",
-    "\n",
-    "# Encode target labels\n",
-    "label_encoder = LabelEncoder()\n",
-    "y_encoded = label_encoder.fit_transform(y)\n",
-    "\n",
-    "# Define models\n",
-    "models = {\n",
-    "    \"KNN\": KNeighborsClassifier(n_neighbors=5),\n",
-    "    \"Decision Tree\": DecisionTreeClassifier(random_state=42),\n",
-    "    \"Random Forest\": RandomForestClassifier(random_state=42),\n",
-    "    \"Logistic Regression\": LogisticRegression(max_iter=200)\n",
-    "}\n",
-    "\n",
-    "# Split the data into training and testing sets\n",
-    "X_train, X_test, y_train, y_test = train_test_split(X_scaled, y_encoded, test_size=0.3, random_state=42)\n",
-    "\n",
-    "results = {}\n",
-    "\n",
-    "# Train and evaluate models\n",
-    "for model_name, model in models.items():\n",
-    "    print(f\"\\nTraining model: {model_name}\")\n",
-    "    model.fit(X_train, y_train)\n",
-    "    y_pred = model.predict(X_test)\n",
-    "    accuracy = accuracy_score(y_test, y_pred)\n",
-    "    print(f\"Accuracy: {accuracy:.2f}\")\n",
-    "    \n",
-    "    print(\"\\nClassification report:\")\n",
-    "    print(classification_report(y_test, y_pred, target_names=iris.target_names))\n",
-    "    \n",
-    "    cv_scores = cross_val_score(model, X_scaled, y_encoded, cv=5)\n",
-    "    print(f\"Average cross-validation score: {cv_scores.mean():.2f}\")\n",
-    "    \n",
-    "    # Compute AUC-ROC (only for models supporting `predict_proba`)\n",
-    "    if hasattr(model, \"predict_proba\"):\n",
-    "        y_prob = model.predict_proba(X_test)[:, 1]  # Get probabilities for class 1 (setosa)\n",
-    "        fpr, tpr, thresholds = roc_curve(y_test, y_prob, pos_label=2)  # ROC curve for class 2 (virginica)\n",
-    "        roc_auc = auc(fpr, tpr)\n",
-    "        print(f\"AUC-ROC for {model_name}: {roc_auc:.2f}\")\n",
-    "        \n",
-    "        # Plot the ROC curve\n",
-    "        plt.figure(figsize=(8, 6))\n",
-    "        plt.plot(fpr, tpr, color='blue', lw=2, label=f'ROC curve (AUC = {roc_auc:.2f})')\n",
-    "        plt.plot([0, 1], [0, 1], color='red', linestyle='--', label='Random guess')\n",
-    "        plt.xlabel('False Positive Rate (FPR)')\n",
-    "        plt.ylabel('True Positive Rate (TPR)')\n",
-    "        plt.title(f'ROC Curve - {model_name}')\n",
-    "        plt.legend(loc=\"lower right\")\n",
-    "        plt.grid()\n",
-    "        plt.show()\n",
-    "    \n",
-    "    results[model_name] = accuracy\n",
-    "\n",
-    "# Model performance comparison\n",
-    "print(\"\\nModel performance comparison:\")\n",
-    "for model_name, accuracy in results.items():\n",
-    "    print(f\"{model_name}: {accuracy:.2f}\")\n"
-   ]
-  }
- ],
- "metadata": {
-  "kernelspec": {
-   "display_name": "Python 3 (ipykernel)",
-   "language": "python",
-   "name": "python3"
-  },
-  "language_info": {
-   "codemirror_mode": {
-    "name": "ipython",
-    "version": 3
-   },
-   "file_extension": ".py",
-   "mimetype": "text/x-python",
-   "name": "python",
-   "nbconvert_exporter": "python",
-   "pygments_lexer": "ipython3",
-   "version": "3.11.9"
-  }
- },
- "nbformat": 4,
- "nbformat_minor": 5
-}
+# %% [markdown]
+# # Classification Iris - Exécution Contrôlée
+# *Notebook conçu pour une exécution incrémentale avec suivi Git*
+
+# %% [python]
+# Cellule 1 - Configuration initiale
+import papermill as pm
+from IPython.display import display, Markdown
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
+from sklearn import datasets
+
+# Paramètres d'exécution contrôlée
+STOP_AT = None  # Serra modifié par Papermill
+current_section = ""
+
+# Configuration reproductible
+RANDOM_STATE = 42
+np.random.seed(RANDOM_STATE)
+plt.style.use('seaborn-v0_8')
+
+# %% [python]
+# Cellule 2 - Vérification de l'environnement
+def check_environment():
+    import sys
+    env_info = f"""
+    **Environnement d'exécution:**
+    - Python: {sys.version.split()[0]}
+    - Pandas: {pd.__version__}
+    - Scikit-learn: {sklearn.__version__}
+    - Dernière exécution: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}
+    """
+    display(Markdown(env_info))
+
+check_environment()
+
+# %% [markdown]
+# ## 1. Chargement des données
+current_section = "Chargement"
+
+# %% [python]
+if STOP_AT and STOP_AT == current_section:
+    raise pm.PapermillEarlyExit(f"Arrêt demandé à: {current_section}")
+
+# Chargement avec cache
+iris = datasets.load_iris()
+X = pd.DataFrame(iris.data, columns=iris.feature_names)
+y = pd.Series(iris.target, name='target')
+
+# Vérification
+display(Markdown("### Aperçu des données"))
+display(X.head())
+display(Markdown(f"\n**Shape:** {X.shape}"))
+
+# %% [markdown]
+# ## 2. Exploration des données
+current_section = "Exploration"
+
+# %% [python]
+if STOP_AT and STOP_AT == current_section:
+    raise pm.PapermillEarlyExit(f"Arrêt demandé à: {current_section}")
+
+# %% [python]
+# Statistiques descriptives
+display(Markdown("### Statistiques descriptives"))
+stats = X.describe().T
+stats['skewness'] = X.skew()
+display(stats)
+
+# %% [python]
+# Visualisation
+display(Markdown("### Visualisation des caractéristiques"))
+fig, axes = plt.subplots(2, 2, figsize=(12, 8))
+for ax, feature in zip(axes.ravel(), X.columns):
+    sns.boxplot(x=y, y=X[feature], ax=ax)
+    ax.set_title(feature)
+plt.tight_layout()
+plt.savefig('notebooks/outputs/boxplots.png', dpi=120)
+plt.show()
+
+# %% [markdown]
+# ## 3. Préprocessing
+current_section = "Préprocessing"
+
+# %% [python]
+if STOP_AT and STOP_AT == current_section:
+    raise pm.PapermillEarlyExit(f"Arrêt demandé à: {current_section}")
+
+# %% [python]
+from sklearn.preprocessing import StandardScaler
+from sklearn.model_selection import train_test_split
+
+# Scaling
+scaler = StandardScaler()
+X_scaled = scaler.fit_transform(X)
+
+# Split
+X_train, X_test, y_train, y_test = train_test_split(
+    X_scaled, y, test_size=0.3, random_state=RANDOM_STATE
+)
+
+display(Markdown(f"""
+**Données transformées:**
+- Train shape: {X_train.shape}
+- Test shape: {X_test.shape}
+"""))
+
+# %% [markdown]
+# ## 4. Modélisation
+current_section = "Modélisation"
+
+# %% [python]
+if STOP_AT and STOP_AT == current_section:
+    raise pm.PapermillEarlyExit(f"Arrêt demandé à: {current_section}")
+
+# %% [python]
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.metrics import classification_report
+
+# Initialisation modèle
+model = RandomForestClassifier(
+    n_estimators=100,
+    random_state=RANDOM_STATE
+)
+
+# Entraînement
+model.fit(X_train, y_train)
+
+# Évaluation
+y_pred = model.predict(X_test)
+report = classification_report(y_test, y_pred, output_dict=True)
+
+# %% [python]
+# Affichage des résultats
+display(Markdown("### Résultats d'évaluation"))
+pd.DataFrame(report).T.round(2)
+
+# %% [python]
+# Sauvegarde du modèle
+import joblib
+joblib.dump(model, 'notebooks/outputs/model.joblib')
+
+# %% [markdown]
+# ## 5. Rapport final
+current_section = "Rapport"
+
+# %% [python]
+if STOP_AT and STOP_AT == current_section:
+    raise pm.PapermillEarlyExit(f"Arrêt demandé à: {current_section}")
+
+# %% [python]
+# Génération automatique du rapport
+report_md = f"""
+# Rapport de classification Iris
+
+## Performances
+- Accuracy: {report['accuracy']:.2%}
+- Macro F1: {report['macro avg']['f1-score']:.2%}
+
+## Visualisations
+![Boxplots](outputs/boxplots.png)
+"""
+
+with open('notebooks/outputs/report.md', 'w') as f:
+    f.write(report_md)
+
+display(Markdown(report_md))
