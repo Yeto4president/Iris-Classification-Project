@@ -1,169 +1,58 @@
 # %% [markdown]
-# # Classification Iris - Exécution Contrôlée
-# *Notebook conçu pour une exécution incrémentale avec suivi Git*
+# # Classification Iris - Visualisations Optimisées
 
 # %% [python]
-# Cellule 1 - Configuration initiale
-import papermill as pm
-from IPython.display import display, Markdown
-import numpy as np
-import pandas as pd
+# Configuration initiale
+import matplotlib
 import matplotlib.pyplot as plt
 import seaborn as sns
+import pandas as pd
+import numpy as np
 from sklearn import datasets
 
-# Paramètres d'exécution contrôlée
-STOP_AT = None  # Serra modifié par Papermill
-current_section = ""
-
-# Configuration reproductible
-RANDOM_STATE = 42
-np.random.seed(RANDOM_STATE)
-plt.style.use('seaborn-v0_8')
-
-# %% [python]
-# Cellule 2 - Vérification de l'environnement
-def check_environment():
-    import sys
-    env_info = f"""
-    **Environnement d'exécution:**
-    - Python: {sys.version.split()[0]}
-    - Pandas: {pd.__version__}
-    - Scikit-learn: {sklearn.__version__}
-    - Dernière exécution: {pd.Timestamp.now().strftime('%Y-%m-%d %H:%M:%S')}
-    """
-    display(Markdown(env_info))
-
-check_environment()
-
-# %% [markdown]
-# ## 1. Chargement des données
-current_section = "Chargement"
+# Configuration des visuels
+%matplotlib inline
+plt.rcParams['figure.dpi'] = 120
+plt.rcParams['savefig.dpi'] = 300
+sns.set_theme(style="whitegrid", palette="husl")
+matplotlib.rc('font', size=10)
+matplotlib.rc('axes', titlesize=12)
 
 # %% [python]
-if STOP_AT and STOP_AT == current_section:
-    raise pm.PapermillEarlyExit(f"Arrêt demandé à: {current_section}")
-
-# Chargement avec cache
+# 1. Chargement des données
 iris = datasets.load_iris()
 X = pd.DataFrame(iris.data, columns=iris.feature_names)
 y = pd.Series(iris.target, name='target')
 
-# Vérification
-display(Markdown("### Aperçu des données"))
-display(X.head())
-display(Markdown(f"\n**Shape:** {X.shape}"))
-
-# %% [markdown]
-# ## 2. Exploration des données
-current_section = "Exploration"
-
 # %% [python]
-if STOP_AT and STOP_AT == current_section:
-    raise pm.PapermillEarlyExit(f"Arrêt demandé à: {current_section}")
-
-# %% [python]
-# Statistiques descriptives
-display(Markdown("### Statistiques descriptives"))
-stats = X.describe().T
-stats['skewness'] = X.skew()
-display(stats)
-
-# %% [python]
-# Visualisation
-display(Markdown("### Visualisation des caractéristiques"))
+# 2. Visualisations Fonctionnelles
+print("\n=== Visualisation des Distributions ===")
 fig, axes = plt.subplots(2, 2, figsize=(12, 8))
+fig.suptitle('Distribution des Caractéristiques par Classe')
+
 for ax, feature in zip(axes.ravel(), X.columns):
     sns.boxplot(x=y, y=X[feature], ax=ax)
-    ax.set_title(feature)
+    ax.set_title(feature.replace(' (cm)', ''))
 plt.tight_layout()
-plt.savefig('notebooks/outputs/boxplots.png', dpi=120)
+plt.savefig('notebooks/outputs/feature_distributions.png', bbox_inches='tight')
+plt.show()  # Nécessaire pour afficher dans certains environnements
+
+# %% [python]
+# Matrice de Corrélation
+print("\n=== Matrice de Corrélation ===")
+corr_matrix = X.corr()
+plt.figure(figsize=(8, 6))
+sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', center=0)
+plt.title('Matrice de Corrélation des Caractéristiques')
+plt.savefig('notebooks/outputs/correlation_matrix.png', bbox_inches='tight')
 plt.show()
 
-# %% [markdown]
-# ## 3. Préprocessing
-current_section = "Préprocessing"
-
 # %% [python]
-if STOP_AT and STOP_AT == current_section:
-    raise pm.PapermillEarlyExit(f"Arrêt demandé à: {current_section}")
-
-# %% [python]
-from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import train_test_split
-
-# Scaling
-scaler = StandardScaler()
-X_scaled = scaler.fit_transform(X)
-
-# Split
-X_train, X_test, y_train, y_test = train_test_split(
-    X_scaled, y, test_size=0.3, random_state=RANDOM_STATE
-)
-
-display(Markdown(f"""
-**Données transformées:**
-- Train shape: {X_train.shape}
-- Test shape: {X_test.shape}
-"""))
-
-# %% [markdown]
-# ## 4. Modélisation
-current_section = "Modélisation"
-
-# %% [python]
-if STOP_AT and STOP_AT == current_section:
-    raise pm.PapermillEarlyExit(f"Arrêt demandé à: {current_section}")
-
-# %% [python]
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import classification_report
-
-# Initialisation modèle
-model = RandomForestClassifier(
-    n_estimators=100,
-    random_state=RANDOM_STATE
-)
-
-# Entraînement
-model.fit(X_train, y_train)
-
-# Évaluation
-y_pred = model.predict(X_test)
-report = classification_report(y_test, y_pred, output_dict=True)
-
-# %% [python]
-# Affichage des résultats
-display(Markdown("### Résultats d'évaluation"))
-pd.DataFrame(report).T.round(2)
-
-# %% [python]
-# Sauvegarde du modèle
-import joblib
-joblib.dump(model, 'notebooks/outputs/model.joblib')
-
-# %% [markdown]
-# ## 5. Rapport final
-current_section = "Rapport"
-
-# %% [python]
-if STOP_AT and STOP_AT == current_section:
-    raise pm.PapermillEarlyExit(f"Arrêt demandé à: {current_section}")
-
-# %% [python]
-# Génération automatique du rapport
-report_md = f"""
-# Rapport de classification Iris
-
-## Performances
-- Accuracy: {report['accuracy']:.2%}
-- Macro F1: {report['macro avg']['f1-score']:.2%}
-
-## Visualisations
-![Boxplots](outputs/boxplots.png)
-"""
-
-with open('notebooks/outputs/report.md', 'w') as f:
-    f.write(report_md)
-
-display(Markdown(report_md))
+# 3. Pairplot avec Seaborn
+print("\n=== Relations Multivariées ===")
+df_vis = X.copy()
+df_vis['target'] = y
+sns.pairplot(df_vis, hue='target', height=2, corner=True)
+plt.suptitle('Relations entre Variables par Classe', y=1.02)
+plt.savefig('notebooks/outputs/pairplot.png', bbox_inches='tight')
+plt.show()
