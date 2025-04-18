@@ -1,0 +1,34 @@
+name: Notebook Staged Execution
+
+on:
+  push:
+    paths:
+      - 'notebooks/Iris_Classification.ipynb'
+
+jobs:
+  execute:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+          
+      - name: Install dependencies
+        run: |
+          pip install -r requirements.txt
+          pip install papermill jupyter nbconvert
+          
+      - name: Execute staged notebook
+        run: |
+          python scripts/execute_staged.py \
+            --input notebooks/Iris_Classification.ipynb \
+            --output notebooks/outputs/staged_$(date +%Y%m%d).ipynb
+          
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: notebook-output
+          path: notebooks/outputs/
