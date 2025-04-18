@@ -38,21 +38,11 @@ Les enseignements de ce projet s'appliquent à des problématiques réelles :
 | **Régression Log.** | Probabilités calibrées             | Limité aux relations linéaires       | Quand on besoin de scores        |
 
 # Classification sur le Dataset Iris
-## 📈 Résultats en Direct
+## Progression du Notebook
 
-![CI Status](https://github.com/votre-user/iris-classification/workflows/CI%20Pipeline/badge.svg)
-![Coverage](https://codecov.io/gh/votre-user/iris-classification/branch/main/graph/badge.svg)
+![Dernière exécution](https://github.com/votre-user/mon-projet/workflows/Notebook%20Staged%20Execution/badge.svg)
 
-### Performances des Modèles
-<!-- Ce tableau sera généré dynamiquement -->
-| Modèle | Accuracy | F1-Score |
-|--------|----------|----------|
-| KNN | 0.97 | 0.96 |
-| Random Forest | 0.98 | 0.97 |
-
-### Visualisations
-![Pairplot](reports/figures/pairplot.png)
-![ROC Curves](reports/figures/roc_curves.png)
+[📊 Voir les derniers résultats](https://github.com/votre-user/mon-projet/actions)
 ## 🚀 Fonctionnalités
 - Comparaison de 4 algorithmes de ML
 - Visualisation complète des données
