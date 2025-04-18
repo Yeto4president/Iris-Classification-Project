@@ -1,0 +1,28 @@
+name: CI Pipeline
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: '3.9'
+      - run: pip install -r requirements.txt
+      - run: pytest tests/ --cov=src --cov-report=xml
+      - uses: codecov/codecov-action@v1
+
+  results:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: python src/main.py
+      - uses: actions/upload-artifact@v2
+        with:
+          name: results
+          path: |
+            reports/figures/
+            reports/results.md
