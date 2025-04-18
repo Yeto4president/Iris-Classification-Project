@@ -37,12 +37,6 @@ Les enseignements de ce projet s'appliquent à des problématiques réelles :
 | **Random Forest**    | Robustesse, haute performance      | Complexité computationnelle         | Applications critiques           |
 | **Régression Log.** | Probabilités calibrées             | Limité aux relations linéaires       | Quand on besoin de scores        |
 
-# Classification sur le Dataset Iris
-## Progression du Notebook
-
-![Dernière exécution](https://github.com/votre-user/mon-projet/workflows/Notebook%20Staged%20Execution/badge.svg)
-
-[📊 Voir les derniers résultats](https://github.com/votre-user/mon-projet/actions)
 ## 🚀 Fonctionnalités
 - Comparaison de 4 algorithmes de ML
 - Visualisation complète des données
@@ -56,13 +50,3 @@ Les enseignements de ce projet s'appliquent à des problématiques réelles :
 | Random Forest        | 0.98     | 1.00    |
 | Logistic Regression  | 0.96     | 0.99    |
 
-## 🔧 Installation
-```bash
-git clone https://github.com/votre-user/iris-classification.git
-pip install -r requirements.txt
-
-```bash
-git clone https://github.com/votre-utilisateur/iris-ml-benchmark.git
-cd iris-ml-benchmark
-pip install -r requirements.txt
-jupyter notebook notebooks/Iris_Analysis.ipynb
